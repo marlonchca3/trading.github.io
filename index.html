@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Candlestick Trading Game</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#f1f5f9;
+  text-align:center;
+}
+
+h1{margin:10px}
+
+#game{
+  max-width:420px;
+  margin:auto;
+}
+
+canvas{
+  width:100%;
+  height:auto;
+  background:white;
+  border:2px solid #0ea5e9;
+}
+
+button, select{
+  padding:10px;
+  margin:5px;
+  font-weight:bold;
+}
+
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.good{background:#22c55e}
+.bad{background:#ef4444}
+.info{background:#0ea5e9;color:white}
+.pause{background:#64748b;color:white}
+</style>
+</head>
+
+<body>
+
+<h1>📈 Candlestick Trading Game</h1>
+
+<div id="game">
+  <p>
+    ⏱️ <span id="time">10</span> |
+    🏆 <span id="score">0</span> |
+    📊 Tendencia: <b id="trend"></b>
+  </p>
+
+  <select id="level">
+    <option value="easy">Principiante</option>
+    <option value="pro">Pro</option>
+    <option value="trader">Trader Real</option>
+  </select>
+
+  <canvas id="chart" width="300" height="300"></canvas>
+
+  <div class="controls" id="options"></div>
+
+  <button class="pause" onclick="togglePause()">⏸️ Pausar / Reanudar</button>
+</div>
+
+<script>
+const canvas = document.getElementById("chart");
+const ctx = canvas.getContext("2d");
+
+let score = localStorage.getItem("score") || 0;
+let time = 10;
+let timer;
+let paused = false;
+
+const trends = ["Alcista","Bajista"];
+let currentTrend = "";
+let currentPattern = null;
+
+document.getElementById("score").textContent = score;
+
+const patterns = [
+ {name:"Martillo", signal:"buy", draw(){drawCandle(150,200,160,260,180,"#22c55e")}},
+ {name:"Doji", signal:"wait", draw(){drawCandle(150,180,180,180,230,"#eab308")}},
+ {name:"Envolvente Alcista", signal:"buy", draw(){
+    drawCandle(130,220,200,250,180,"#ef4444");
+    drawCandle(170,160,240,260,150,"#22c55e");
+ }},
+ {name:"Estrella Fugaz", signal:"sell", draw(){drawCandle(150,160,210,230,170,"#ef4444")}},
+ {name:"Foto 1", signal:"wait", draw(){ if(img1.complete) ctx.drawImage(img1, 0, 0, 300, 300); }},
+ // 👉 AQUÍ PUEDES AGREGAR TODOS LOS DEL PDF
+];
+
+const img1 = new Image();
+img1.src = 'fotos/1.png';
+
+function drawCandle(x, open, close, high, low, color){
+ ctx.strokeStyle=color;
+ ctx.fillStyle=color;
+ ctx.beginPath();
+ ctx.moveTo(x,high);
+ ctx.lineTo(x,low);
+ ctx.stroke();
+ ctx.fillRect(x-10,Math.min(open,close),20,Math.abs(open-close)||2);
+}
+
+function newRound(){
+ clearInterval(timer);
+ time=10;
+ ctx.clearRect(0,0,300,300);
+
+ currentTrend = trends[Math.floor(Math.random()*2)];
+ document.getElementById("trend").textContent = currentTrend;
+
+ currentPattern = patterns[Math.floor(Math.random()*patterns.length)];
+ currentPattern.draw();
+
+ renderOptions();
+ startTimer();
+}
+
+function renderOptions(){
+ const div=document.getElementById("options");
+ div.innerHTML="";
+ const level=document.getElementById("level").value;
+
+ if(level==="trader"){
+   ["Comprar","Vender","Esperar"].forEach(a=>{
+     const b=document.createElement("button");
+     b.textContent=a;
+     b.className="info";
+     b.onclick=()=>trade(a);
+     div.appendChild(b);
+   });
+ }else{
+   patterns.forEach(p=>{
+     const b=document.createElement("button");
+     b.textContent=p.name;
+     b.onclick=()=>answer(p.name);
+     div.appendChild(b);
+   });
+ }
+}
+
+function answer(name){
+ if(name===currentPattern.name){
+   score++;
+   alert("✅ Correcto");
+ }else alert("❌ Incorrecto");
+ saveScore();
+ newRound();
+}
+
+function trade(action){
+ let ok=false;
+ if(action==="Comprar" && currentPattern.signal==="buy" && currentTrend==="Alcista") ok=true;
+ if(action==="Vender" && currentPattern.signal==="sell" && currentTrend==="Bajista") ok=true;
+ if(action==="Esperar" && currentPattern.signal==="wait") ok=true;
+
+ if(ok){score++;alert("💰 Trade exitoso")}
+ else alert("📉 Mala decisión");
+
+ saveScore();
+ newRound();
+}
+
+function saveScore(){
+ localStorage.setItem("score",score);
+ document.getElementById("score").textContent=score;
+}
+
+function startTimer(){
+ timer=setInterval(()=>{
+  if(!paused){
+    time--;
+    document.getElementById("time").textContent=time;
+    if(time===0){alert("⏱️ Tiempo");newRound();}
+  }
+ },1000);
+}
+
+function togglePause(){paused=!paused}
+
+newRound();
+</script>
+
+</body>
+</html>
