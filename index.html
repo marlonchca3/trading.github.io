@@ -1,194 +1,260 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Candlestick Trading Game</title>
-
+<title>Juego de Patrones de Velas</title>
 <style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#f1f5f9;
-  text-align:center;
+body {
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: #fff;
+  text-align: center;
 }
-
-h1{margin:10px}
-
-#game{
-  max-width:420px;
-  margin:auto;
+.container {
+  max-width: 700px;
+  margin: auto;
 }
-
-canvas{
-  width:100%;
-  height:auto;
-  background:white;
-  border:2px solid #0ea5e9;
+img {
+  width: 100%;
+  border-radius: 10px;
+  margin: 15px 0;
 }
-
-button, select{
-  padding:10px;
-  margin:5px;
-  font-weight:bold;
+button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
 }
-
-.controls{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
+button:hover {
+  background: #1d4ed8;
 }
-
-.good{background:#22c55e}
-.bad{background:#ef4444}
-.info{background:#0ea5e9;color:white}
-.pause{background:#64748b;color:white}
+button:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+#timer {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fbbf24;
+  margin: 15px 0;
+}
+#pregunta {
+  font-size: 20px;
+  margin: 20px 0;
+  font-weight: bold;
+  min-height: 30px;
+}
+#resultado {
+  margin-top: 10px;
+  font-size: 18px;
+  min-height: 25px;
+}
+.opciones-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+#reinicioContainer {
+  margin-top: 30px;
+  position: relative;
+  z-index: 100;
+}
 </style>
 </head>
 
 <body>
+<div class="container">
+  <h1>🎯 Juego de Patrones de Velas</h1>
+  <p>Puntaje: <span id="score">0</span> / 20 | Pregunta: <span id="preguntaActual">1</span> / 20</p>
 
-<h1>📈 Candlestick Trading Game</h1>
+  <div id="timer">Tiempo: 10s</div>
 
-<div id="game">
-  <p>
-    ⏱️ <span id="time">10</span> |
-    🏆 <span id="score">0</span> |
-    📊 Tendencia: <b id="trend"></b>
-  </p>
+  <img id="imagen" src="" alt="patrón" style="max-height: 300px;">
 
-  <select id="level">
-    <option value="easy">Principiante</option>
-    <option value="pro">Pro</option>
-    <option value="trader">Trader Real</option>
-  </select>
+  <div id="pregunta"></div>
 
-  <canvas id="chart" width="300" height="300"></canvas>
+  <div id="opciones" class="opciones-container"></div>
 
-  <div class="controls" id="options"></div>
-
-  <button class="pause" onclick="togglePause()">⏸️ Pausar / Reanudar</button>
+  <p id="resultado"></p>
+  
+  <div id="reinicioContainer" style="display: none;">
+    <button id="reiniciarBtn" onclick="reiniciarJuego()" style="background: #10b981; font-size: 18px; padding: 12px 20px; margin-top: 20px;">🔄 Reiniciar Juego</button>
+  </div>
 </div>
 
 <script>
-const canvas = document.getElementById("chart");
-const ctx = canvas.getContext("2d");
+const patrones = [
+  {
+    img: "fotos/7.jpg",
+    pregunta: "¿Qué patrón es el 1 ?",
+    correcto: "Cielo negro cubierto",
+    opciones: ["Cielo negro cubierto", "Doble Techo", "Triángulo"]
+  },
+  {
+    img: "fotos/8.jpg",
+    pregunta: "¿Qué patrón es el 1 ?",
+    correcto: "Cielo negro cubierto",
+    opciones: ["Canal", "Cielo negro cubierto", "Bandera"]
+  },
+  {
+    img: "fotos/9.jpg",
+    pregunta: "¿Qué patrónes es el 3?",
+    correcto: "Cielos negros cubierto",
+    opciones: ["Breakout", "Cielos negros cubierto", "Pullback"]
+  },
+  {
+    img: "fotos/10.jpg",
+    pregunta: "¿Qué patrónes es el 3",
+    correcto: "Patrón penetrante",
+    opciones: ["Patrón salido", "Patrón cubierto", "Patrón penetrante"]
+  },
 
-let score = localStorage.getItem("score") || 0;
-let time = 10;
-let timer;
-let paused = false;
+  {
+    img: "fotos/11.jpg",
+    pregunta: "¿Qué patrónes es el 1",
+    correcto: "Patrón penetrante",
+    opciones: ["Patrón salido", "Patrón cubierto", "Patrón penetrante"]
+  },
 
-const trends = ["Alcista","Bajista"];
-let currentTrend = "";
-let currentPattern = null;
-
-document.getElementById("score").textContent = score;
-
-const patterns = [
- {name:"Martillo", signal:"buy", draw(){drawCandle(150,200,160,260,180,"#22c55e")}},
- {name:"Doji", signal:"wait", draw(){drawCandle(150,180,180,180,230,"#eab308")}},
- {name:"Envolvente Alcista", signal:"buy", draw(){
-    drawCandle(130,220,200,250,180,"#ef4444");
-    drawCandle(170,160,240,260,150,"#22c55e");
- }},
- {name:"Estrella Fugaz", signal:"sell", draw(){drawCandle(150,160,210,230,170,"#ef4444")}},
- {name:"Foto 1", signal:"wait", draw(){ if(img1.complete) ctx.drawImage(img1, 0, 0, 300, 300); }},
- // 👉 AQUÍ PUEDES AGREGAR TODOS LOS DEL PDF
+  {
+    img: "fotos/12.jpg",
+    pregunta: "¿Qué patrónes es el 1",
+    correcto: "Patrónes de empuje",
+    opciones: ["Patrónes de empuje", "Patrón cubierto", "Patrón penetrante"]
+  }
 ];
 
-const img1 = new Image();
-img1.src = 'fotos/1.png';
+let indice = 0;
+let score = 0;
+let preguntasHechas = 0;
+let tiempoRestante = 0;
+let timerInterval = null;
+let patronActual = null;
 
-function drawCandle(x, open, close, high, low, color){
- ctx.strokeStyle=color;
- ctx.fillStyle=color;
- ctx.beginPath();
- ctx.moveTo(x,high);
- ctx.lineTo(x,low);
- ctx.stroke();
- ctx.fillRect(x-10,Math.min(open,close),20,Math.abs(open-close)||2);
+function obtenerPatronAleatorio() {
+  return patrones[Math.floor(Math.random() * patrones.length)];
 }
 
-function newRound(){
- clearInterval(timer);
- time=10;
- ctx.clearRect(0,0,300,300);
-
- currentTrend = trends[Math.floor(Math.random()*2)];
- document.getElementById("trend").textContent = currentTrend;
-
- currentPattern = patterns[Math.floor(Math.random()*patterns.length)];
- currentPattern.draw();
-
- renderOptions();
- startTimer();
+function iniciarTemporizador() {
+  tiempoRestante = 10;
+  actualizarTemporizador();
+  
+  timerInterval = setInterval(() => {
+    tiempoRestante--;
+    actualizarTemporizador();
+    
+    if (tiempoRestante <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById("resultado").textContent = "⏰ Tiempo agotado. Era: " + patronActual.correcto;
+      deshabilitarBotones();
+      preguntasHechas++;
+      
+      if (preguntasHechas < 20) {
+        setTimeout(cargarPatron, 2000);
+      } else {
+        mostrarFinal();
+      }
+    }
+  }, 1000);
 }
 
-function renderOptions(){
- const div=document.getElementById("options");
- div.innerHTML="";
- const level=document.getElementById("level").value;
-
- if(level==="trader"){
-   ["Comprar","Vender","Esperar"].forEach(a=>{
-     const b=document.createElement("button");
-     b.textContent=a;
-     b.className="info";
-     b.onclick=()=>trade(a);
-     div.appendChild(b);
-   });
- }else{
-   patterns.forEach(p=>{
-     const b=document.createElement("button");
-     b.textContent=p.name;
-     b.onclick=()=>answer(p.name);
-     div.appendChild(b);
-   });
- }
-}
-
-function answer(name){
- if(name===currentPattern.name){
-   score++;
-   alert("✅ Correcto");
- }else alert("❌ Incorrecto");
- saveScore();
- newRound();
-}
-
-function trade(action){
- let ok=false;
- if(action==="Comprar" && currentPattern.signal==="buy" && currentTrend==="Alcista") ok=true;
- if(action==="Vender" && currentPattern.signal==="sell" && currentTrend==="Bajista") ok=true;
- if(action==="Esperar" && currentPattern.signal==="wait") ok=true;
-
- if(ok){score++;alert("💰 Trade exitoso")}
- else alert("📉 Mala decisión");
-
- saveScore();
- newRound();
-}
-
-function saveScore(){
- localStorage.setItem("score",score);
- document.getElementById("score").textContent=score;
-}
-
-function startTimer(){
- timer=setInterval(()=>{
-  if(!paused){
-    time--;
-    document.getElementById("time").textContent=time;
-    if(time===0){alert("⏱️ Tiempo");newRound();}
+function actualizarTemporizador() {
+  document.getElementById("timer").textContent = `Tiempo: ${tiempoRestante}s`;
+  if (tiempoRestante <= 3) {
+    document.getElementById("timer").style.color = "#ef4444";
+  } else {
+    document.getElementById("timer").style.color = "#fbbf24";
   }
- },1000);
 }
 
-function togglePause(){paused=!paused}
+function deshabilitarBotones() {
+  const botones = document.querySelectorAll(".opciones-container button");
+  botones.forEach(btn => btn.disabled = true);
+}
 
-newRound();
+function cargarPatron() {
+  clearInterval(timerInterval);
+  
+  const p = obtenerPatronAleatorio();
+  patronActual = p;
+  document.getElementById("imagen").src = p.img;
+  document.getElementById("pregunta").textContent = p.pregunta;
+  document.getElementById("preguntaActual").textContent = preguntasHechas + 1;
+  const opcionesDiv = document.getElementById("opciones");
+  opcionesDiv.innerHTML = "";
+  document.getElementById("resultado").textContent = "";
+
+  p.opciones.forEach(op => {
+    const btn = document.createElement("button");
+    btn.textContent = op;
+    btn.onclick = () => verificar(op);
+    btn.disabled = false;
+    opcionesDiv.appendChild(btn);
+  });
+  
+  iniciarTemporizador();
+}
+
+function verificar(respuesta) {
+  clearInterval(timerInterval);
+  deshabilitarBotones();
+  
+  const resultado = document.getElementById("resultado");
+
+  if (respuesta === patronActual.correcto) {
+    resultado.textContent = "✅ Correcto!";
+    score++;
+    document.getElementById("score").textContent = score;
+  } else {
+    resultado.textContent = "❌ Incorrecto. Era: " + patronActual.correcto;
+  }
+
+  preguntasHechas++;
+  
+  if (preguntasHechas < 20) {
+    setTimeout(cargarPatron, 2000);
+  } else {
+    mostrarFinal();
+  }
+}
+
+function mostrarFinal() {
+  setTimeout(() => {
+    document.getElementById("resultado").textContent = `🎉 ¡Juego terminado! Puntaje final: ${score}/20`;
+    document.getElementById("reinicioContainer").style.display = "block";
+    document.getElementById("imagen").style.display = "none";
+    document.getElementById("pregunta").style.display = "none";
+    document.getElementById("opciones").style.display = "none";
+    document.getElementById("timer").style.display = "none";
+  }, 500);
+}
+
+function reiniciarJuego() {
+  indice = 0;
+  score = 0;
+  preguntasHechas = 0;
+  tiempoRestante = 0;
+  clearInterval(timerInterval);
+  
+  document.getElementById("score").textContent = "0";
+  document.getElementById("preguntaActual").textContent = "1";
+  document.getElementById("resultado").textContent = "";
+  document.getElementById("imagen").style.display = "block";
+  document.getElementById("pregunta").style.display = "block";
+  document.getElementById("opciones").style.display = "flex";
+  document.getElementById("timer").style.display = "block";
+  document.getElementById("reinicioContainer").style.display = "none";
+  
+  cargarPatron();
+}
+
+cargarPatron();
 </script>
-
 </body>
 </html>
