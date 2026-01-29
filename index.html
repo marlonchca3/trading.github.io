@@ -71,7 +71,7 @@ button:disabled {
 <body>
 <div class="container">
   <h1>🎯 Juego de Patrones de Velas</h1>
-  <p>Puntaje: <span id="score">0</span> / 50 | Pregunta: <span id="preguntaActual">1</span> / 50</p>
+  <p>Puntaje: <span id="score">0</span> / 50 | Pregunta: <span id="preguntaActual">1</span> / 100</p>
 
   <div id="timer">Tiempo: 10s</div>
 
@@ -296,7 +296,7 @@ function iniciarTemporizador() {
       deshabilitarBotones();
       preguntasHechas++;
       
-      if (preguntasHechas < 50) {
+      if (preguntasHechas < 100) {
         setTimeout(cargarPatron, 2000);
       } else {
         mostrarFinal();
@@ -358,7 +358,7 @@ function verificar(respuesta) {
 
   preguntasHechas++;
   
-  if (preguntasHechas < 50) {
+  if (preguntasHechas < 100) {
     setTimeout(cargarPatron, 2000);
   } else {
     mostrarFinal();
@@ -367,7 +367,7 @@ function verificar(respuesta) {
 
 function mostrarFinal() {
   setTimeout(() => {
-    document.getElementById("resultado").textContent = `🎉 ¡Juego terminado! Puntaje final: ${score}/50`;
+    document.getElementById("resultado").textContent = `🎉 ¡Juego terminado! Puntaje final: ${score}/100`;
     document.getElementById("reinicioContainer").style.display = "block";
     document.getElementById("imagen").style.display = "none";
     document.getElementById("pregunta").style.display = "none";
