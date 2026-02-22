@@ -399,7 +399,7 @@ function verificar(respuesta) {
 
 
     // --- NUEVA LÓGICA DE VICTORIA ---
-    if (score === 3) {
+    if (score === 50) {
       mostrarVictoria();
       return; // Salimos para no seguir con la siguiente pregunta
     }
@@ -423,11 +423,11 @@ function mostrarVictoria() {
   const anim = document.getElementById("animacionVictoria");
   anim.style.display = "block";
   
-  // Esperar 4 segundos y reiniciar
+  // Esperar 6 segundos y reiniciar
   setTimeout(() => {
     anim.style.display = "none";
     reiniciarJuego();
-  }, 4000);
+  }, 6000);
 }
 
 function mostrarFinal() {
