@@ -4,59 +4,68 @@
 <head>
 <meta charset="UTF-8">
 <title>Juego de Patrones de Velas</title>
-
-
 <style>
-  * { box-sizing: border-box; }
-  body {
-    font-family: Arial, sans-serif;
-    background: #0f172a;
-    color: #fff;
-    margin: 0;
-    padding: 10px; /* Padding para móviles */
-    display: flex;
-    justify-content: center;
-  }
-  .container {
-    width: 100%;
-    max-width: 600px; /* Tamaño máximo para escritorio */
-    background: #1e293b;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-  }
-  img {
-    width: 100%;
-    height: auto; /* Mantiene la proporción */
-    max-height: 250px;
-    object-fit: contain; /* Evita que la imagen se deforme */
-    border-radius: 10px;
-    margin: 15px 0;
-    background: #fff; /* Fondo blanco para las velas si la imagen es transparente */
-  }
-  button {
-    width: 100%; /* Botones ocupan todo el ancho en móviles */
-    padding: 15px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    background: #2563eb;
-    color: white;
-    font-size: 18px;
-    transition: background 0.2s;
-  }
-  button:active { transform: scale(0.98); }
-  .opciones-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin: 20px 0;
-  }
-  h1 { font-size: 1.5rem; }
-  #timer { font-size: 20px; color: #fbbf24; }
+body {
+  font-family: Arial, sans-serif;
+  background: #0f172a;
+  color: #fff;
+  text-align: center;
+}
+.container {
+  max-width: 700px;
+  margin: auto;
+}
+img {
+  width: 100%;
+  border-radius: 10px;
+  margin: 15px 0;
+}
+button {
+  margin: 5px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+}
+button:hover {
+  background: #1d4ed8;
+}
+button:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+#timer {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fbbf24;
+  margin: 15px 0;
+}
+#pregunta {
+  font-size: 20px;
+  margin: 20px 0;
+  font-weight: bold;
+  min-height: 30px;
+}
+#resultado {
+  margin-top: 10px;
+  font-size: 18px;
+  min-height: 25px;
+}
+.opciones-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 20px 0;
+}
+#reinicioContainer {
+  margin-top: 30px;
+  position: relative;
+  z-index: 100;
+}
 </style>
-
-
 </head>
 
 <body>
