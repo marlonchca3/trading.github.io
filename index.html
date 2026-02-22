@@ -82,6 +82,14 @@
   </div>
 </div>
 
+
+<div id="animacionVictoria" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; text-align:center; padding-top:20%;">
+    <h1 style="color:#fbbf24; font-size: 50px;">🎉 ¡FELICITACIONES! 🎉</h1>
+    <p style="font-size: 30px;">¡Has alcanzado los 5 puntos!</p>
+    <img src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ2VudWF6a2V1MjlxeWl0Ynd2Z3d0YW8yejZ0ajJvbjh6cWk3bW04cCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PZWaW6S6waf2kiv4hI/giphy.gif" alt="Cohetes">
+</div>
+
+
 <script>
 const patrones = [
   
@@ -388,6 +396,15 @@ function verificar(respuesta) {
     resultado.textContent = "✅ Correcto!";
     score++;
     document.getElementById("score").textContent = score;
+
+
+    // --- NUEVA LÓGICA DE VICTORIA ---
+    if (score === 3) {
+      mostrarVictoria();
+      return; // Salimos para no seguir con la siguiente pregunta
+    }
+
+
   } else {
     resultado.textContent = "❌ Incorrecto. Era: " + patronActual.correcto;
   }
@@ -399,6 +416,18 @@ function verificar(respuesta) {
   } else {
     mostrarFinal();
   }
+}
+
+
+function mostrarVictoria() {
+  const anim = document.getElementById("animacionVictoria");
+  anim.style.display = "block";
+  
+  // Esperar 4 segundos y reiniciar
+  setTimeout(() => {
+    anim.style.display = "none";
+    reiniciarJuego();
+  }, 4000);
 }
 
 function mostrarFinal() {

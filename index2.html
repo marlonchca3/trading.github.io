@@ -88,6 +88,12 @@ button:disabled {
   </div>
 </div>
 
+<div id="animacionVictoria" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:999; text-align:center; padding-top:20%;">
+    <h1 style="color:#fbbf24; font-size: 50px;">🎉 ¡FELICITACIONES! 🎉</h1>
+    <p style="font-size: 30px;">¡Has alcanzado los 5 puntos!</p>
+    <img src="https://media.giphy.com/media/l41lTjJp90YyW2DkI/giphy.gif" alt="Cohetes">
+</div>
+
 <script>
 const patrones = [
   
@@ -394,6 +400,12 @@ function verificar(respuesta) {
     resultado.textContent = "✅ Correcto!";
     score++;
     document.getElementById("score").textContent = score;
+
+    if (score === 5) {
+      mostrarVictoria();
+      return; // Salimos para no seguir con la siguiente pregunta
+    }
+
   } else {
     resultado.textContent = "❌ Incorrecto. Era: " + patronActual.correcto;
   }
@@ -405,6 +417,18 @@ function verificar(respuesta) {
   } else {
     mostrarFinal();
   }
+}
+
+// Nueva función para manejar el evento
+function mostrarVictoria() {
+  const anim = document.getElementById("animacionVictoria");
+  anim.style.display = "block";
+  
+  // Esperar 4 segundos y reiniciar
+  setTimeout(() => {
+    anim.style.display = "none";
+    reiniciarJuego();
+  }, 4000);
 }
 
 function mostrarFinal() {
