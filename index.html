@@ -124,6 +124,43 @@ body {
 .info-card h2 { font-size: 22px; font-weight: bold; margin-bottom: 6px; line-height: 1.3; }
 .info-card p { font-size: 14px; color: #94a3b8; }
 .info-card p span.hl { color: #fbbf24; font-weight: bold; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  body {
+    height: auto;
+    overflow: auto;
+  }
+
+  .main {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .chart-panel {
+    flex: none;
+    width: 100%;
+    padding: 12px 12px 0;
+    max-height: 55vw;
+  }
+
+  .right-panel {
+    flex: none;
+    width: 100%;
+    padding: 12px;
+  }
+
+  .info-card {
+    margin-top: 0;
+  }
+
+  #timer {
+    font-size: 17px;
+    padding: 10px 16px;
+  }
+
+  .info-card h2 { font-size: 17px; }
+}
 </style>
 </head>
 
